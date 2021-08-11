@@ -4,7 +4,7 @@
 |-------------------------|----------------------------|  
   
 ## Preparation  
-Install `node.js` from the official [website] (https://nodejs.org/en/), then, `in the bot` folder, write the following commands in the console  
+Install `node.js` from the official [website](https://nodejs.org/en/), then, `in the bot` folder, write the following commands in the console  
   
 `npm init`.  
 `npm install mineflayer`  
