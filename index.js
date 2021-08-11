@@ -20,7 +20,7 @@ let fileContent = fs.readFileSync("bot-data.txt", "utf8").split('\n')
 let homeX = Number(fileContent[0])
 let homeZ = Number(fileContent[1])
 let radius = Number(fileContent[2])
-
+let walkStage = -1
 let digging = 1
 
 bot.once('spawn', () => {
@@ -33,6 +33,7 @@ bot.once('spawn', () => {
 	switch(args[0]) {
 		case 'dig': 
 			digging = 1
+			walkStage = 0
 			dig()
 			return
 		case 'come':	
@@ -59,7 +60,7 @@ bot.once('spawn', () => {
 			return
 		case 'drop':
 			bot.lookAt(bot.entity.position)
-  		setTimeout(dropAll, 1000)
+  			setTimeout(dropAll, 1000)
 			return
 		}
   })
@@ -77,31 +78,71 @@ bot.on('playerCollect', (collector, itemDrop) => {
 async function dig() {
 	for (z=-radius;z<=radius;z++) {
 		for (x=-radius;x<=radius;x++) {
+			if (bot.blockAt(bot.entity.position.offset(x, 0, z))['name'] === 'obsidian'){
 				await bot.dig(bot.blockAt(bot.entity.position.offset(x, 0, z)))
+			}
 		}
 	}
 	
 	bot.pathfinder.setGoal(new GoalNear(homeX+radius, bot.entity.position.y, homeZ, 0))
-	setTimeout(bot.pathfinder.setGoal, 4000, new GoalNear(homeX, bot.entity.position.y, homeZ+radius, 0))
-	setTimeout(bot.pathfinder.setGoal, 8000, new GoalNear(homeX-radius, bot.entity.position.y, homeZ, 0))
-	setTimeout(bot.pathfinder.setGoal, 12000, new GoalNear(homeX, bot.entity.position.y, homeZ-radius, 0))
-	setTimeout(bot.pathfinder.setGoal, 16000, new GoalNear(homeX+radius, bot.entity.position.y, homeZ, 0))
-	setTimeout(bot.pathfinder.setGoal, 20000, new GoalNear(homeX, bot.entity.position.y, homeZ, 0))
-
-	if (bot.entity.position.y === 1) {	
-		digging = 0
-		bot.chat('pillar done')
-		return
-	}
-
-	if (!digging) {
-		bot.chat('pause')
-		return
-	}
-
-	setTimeout(bot.dig, 24000, bot.blockAt(bot.entity.position.offset(0, -1, 0)))
-	setTimeout(dig, 28000)
 }
+
+bot.on('goal_reached', async () => {
+	function createCustomTimeout(seconds) {
+		return new Promise((resolve, reject) => {
+		  setTimeout(() => {
+			resolve();
+			}, seconds * 1000);
+		});
+	}
+
+	await createCustomTimeout(1)
+	
+	if (walkStage === 5) {
+		walkStage = 0
+
+		if (bot.entity.position.y === 1) {	
+			digging = 0
+			bot.chat('pillar done')
+			return
+		}
+	
+		if (!digging) {
+			bot.chat('pause')
+			return
+		}
+	
+		await bot.dig(bot.blockAt(bot.entity.position.offset(0, -1, 0)))
+		await createCustomTimeout(1)
+		dig()
+		return
+	}
+
+	if (walkStage === 4) {
+		bot.pathfinder.setGoal(new GoalNear(homeX, bot.entity.position.y, homeZ, 0))
+		walkStage += 1
+	}
+
+	if (walkStage === 3) {
+		bot.pathfinder.setGoal(new GoalNear(homeX+radius, bot.entity.position.y, homeZ, 0))
+		walkStage += 1
+	}
+	
+	if (walkStage === 2) {
+		bot.pathfinder.setGoal(new GoalNear(homeX, bot.entity.position.y, homeZ-radius, 0))
+		walkStage += 1
+	}
+	
+	if (walkStage === 1) {
+		bot.pathfinder.setGoal(new GoalNear(homeX-radius, bot.entity.position.y, homeZ, 0))
+		walkStage += 1
+	}
+	
+	if (walkStage === 0) {
+		bot.pathfinder.setGoal(new GoalNear(homeX, bot.entity.position.y, homeZ+radius, 0))
+		walkStage += 1
+	}
+})
 
 function dropAll() {
 	if (bot.inventory.items().length === 0) return
