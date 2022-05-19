@@ -21,10 +21,10 @@ Bring the bot to the center of the column with the command `come`, give the bot 
 come --> call the bot  
 home --> set center of column  
 radius \<blocks> --> set column radius (not counting center block)  
-save --> save digging data
+save --> save digging data  
 dig --> start the bot's digging  
 stop --> stop the bot, the bot will write `pause` when it stops  
-drop --> bot will drop all the stuff under itself
+drop --> bot will drop all the stuff under itself  
   
 bot-data.txt save view:  
 ```
