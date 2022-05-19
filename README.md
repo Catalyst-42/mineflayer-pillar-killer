@@ -18,7 +18,7 @@ If you do everything correctly the bot will appear on the server
 Bring the bot to the center of the column with the command `come`, give the bot a pickaxe and a carved pumpkin, when the bot is standing in the center of the column, write `home` and `radius` for the parameters of the column. After `dig` to start working. The bot will stop when it gets to Y = 1. 
 
 ## Commands for chat:
-come --> call the bot
+come --> call the bot  
 home --> set center of column  
 radius \<blocks> --> set column radius (not counting center block)  
 save --> save digging data
